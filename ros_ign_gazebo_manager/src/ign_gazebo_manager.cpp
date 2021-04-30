@@ -12,7 +12,6 @@
 #include <rclcpp/rclcpp.hpp>
 
 #include <std_msgs/msg/string.hpp>
-#include <tf2_msgs/msg/tf_message.hpp>
 
 #include <ros_ign_interfaces/srv/control_world.hpp>
 #include <ros_ign_interfaces/srv/create_model.hpp>
