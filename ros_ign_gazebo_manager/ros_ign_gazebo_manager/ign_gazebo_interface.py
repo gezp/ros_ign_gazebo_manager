@@ -32,7 +32,7 @@ class IgnGazeboInterface(Node):
         #
         self.get_logger().info("IgnGazeboInterface initialised successfuly")
 
-    def start(self,is_wait=False):
+    def resume(self,is_wait=False):
         req = ControlWorld.Request()
         req.world_control.pause = False
         srv_call = self.control_cli.call_async(req)

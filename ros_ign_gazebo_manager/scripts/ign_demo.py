@@ -17,12 +17,12 @@ if __name__ == "__main__":
     executor.add_node(ign)
     thread = threading.Thread(target=executor.spin)
     thread.start()
-    input_msg="#1:start, 2:pause, 3:create model, 4:move model 5:delete model >> "
+    input_msg="#1:resume, 2:pause, 3:create model, 4:move model 5:delete model >> "
     while(rclpy.ok()):
         mode = input(input_msg)
         mode = int(mode)
         if mode == 1:
-            ign.start()
+            ign.resume()
         elif mode == 2:
             ign.pause()
         elif mode ==3:
