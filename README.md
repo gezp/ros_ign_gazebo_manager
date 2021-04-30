@@ -1,1 +1,1 @@
-# ros_ign_gazebo_manager
+# ros_ign_gazebo_py
