@@ -3,7 +3,7 @@ import threading
 import rclpy
 from rclpy.node import Node
 
-from geometry_msgs.msg import Transform
+from geometry_msgs.msg import Pose
 
 
 from ros_ign_gazebo_manager.ign_gazebo_interface import  IgnGazeboInterface
@@ -26,13 +26,13 @@ if __name__ == "__main__":
         elif mode == 2:
             ign.pause()
         elif mode ==3:
-            tf=Transform()
-            tf.translation.z=1.1
-            ign.create_model("obj1",tf,"https://fuel.ignitionrobotics.org/1.0/OpenRobotics/models/LitterBin",is_wait=True)
+            pose=Pose()
+            pose.position.z=1.1
+            ign.create_model("obj1",pose,"https://fuel.ignitionrobotics.org/1.0/OpenRobotics/models/LitterBin",is_wait=True)
         elif mode == 4:
-            tf=Transform()
-            tf.translation.z=1.905
-            ign.set_model_pose("obj1",tf)
+            pose=Pose()
+            pose.position.z=1.905
+            ign.set_model_pose("obj1",pose)
         elif mode == 5:
             ign.remove_model("obj1")
     rclpy.shutdown()     

@@ -14,9 +14,9 @@
 #include <std_msgs/msg/string.hpp>
 
 #include <ros_ign_interfaces/srv/control_world.hpp>
-#include <ros_ign_interfaces/srv/create_model.hpp>
-#include <ros_ign_interfaces/srv/move_model.hpp>
-#include <ros_ign_interfaces/srv/remove_model.hpp>
+#include <ros_ign_interfaces/srv/spawn_entity.hpp>
+#include <ros_ign_interfaces/srv/set_entity_pose.hpp>
+#include <ros_ign_interfaces/srv/delete_entity.hpp>
 
 void
 convert_ros_to_ign(const ros_ign_interfaces::msg::EntityFactory & ros_msg,
@@ -31,8 +31,8 @@ convert_ros_to_ign(const ros_ign_interfaces::msg::EntityFactory & ros_msg,
     }
     ign_msg.set_relative_to(ros_msg.relative_to);
     ign_msg.set_allow_renaming(ros_msg.allow_renaming);
-    auto& t = ros_msg.tf.translation;
-    auto& r = ros_msg.tf.rotation;
+    auto& t = ros_msg.pose.position;
+    auto& r = ros_msg.pose.orientation;
     ignition::math::Pose3d pose{t.x, t.y, t.z, r.w, r.x, r.y, r.z};
     ignition::msgs::Set(ign_msg.mutable_pose(), pose);
 }
@@ -44,7 +44,6 @@ convert_ros_to_ign(const ros_ign_interfaces::msg::WorldControl & ros_msg,
     ign_msg.set_multi_step(ros_msg.multi_step);
 }
 
-
 class IgnGazeboManager {
    public:
     IgnGazeboManager(const rclcpp::Node::SharedPtr& nh, std::string ign_world_name) : nh_(nh),ign_world_name_(ign_world_name) {
@@ -52,11 +51,11 @@ class IgnGazeboManager {
         //ros srv
         ros_control_world_srv_ = nh->create_service<ros_ign_interfaces::srv::ControlWorld>("ign/"+ign_world_name_+"/control", 
                 std::bind(&IgnGazeboManager::controlWorldCb, this, std::placeholders::_1,std::placeholders::_2));
-        ros_create_srv_ = nh->create_service<ros_ign_interfaces::srv::CreateModel>("ign/"+ign_world_name_+"/create", 
+        ros_create_srv_ = nh->create_service<ros_ign_interfaces::srv::SpawnEntity>("ign/"+ign_world_name_+"/create", 
                 std::bind(&IgnGazeboManager::createCb, this, std::placeholders::_1,std::placeholders::_2));
-        ros_remove_srv_ =  nh->create_service<ros_ign_interfaces::srv::RemoveModel>("ign/"+ign_world_name_+"/remove", 
+        ros_remove_srv_ =  nh->create_service<ros_ign_interfaces::srv::DeleteEntity>("ign/"+ign_world_name_+"/remove", 
                 std::bind(&IgnGazeboManager::removeCb, this, std::placeholders::_1,std::placeholders::_2));
-        ros_move_srv_ =  nh->create_service<ros_ign_interfaces::srv::MoveModel>("ign/"+ign_world_name_+"/set_pose", 
+        ros_move_srv_ =  nh->create_service<ros_ign_interfaces::srv::SetEntityPose>("ign/"+ign_world_name_+"/set_pose", 
                 std::bind(&IgnGazeboManager::moveCb, this, std::placeholders::_1,std::placeholders::_2));
     }
     ~IgnGazeboManager(){};
@@ -84,8 +83,8 @@ class IgnGazeboManager {
         RCLCPP_ERROR(nh_->get_logger(), "[IgnGazeboManager] Failed to control\n %s", req.DebugString().c_str());
     }
 
-    void createCb(const std::shared_ptr<ros_ign_interfaces::srv::CreateModel::Request> request,
-                        std::shared_ptr<ros_ign_interfaces::srv::CreateModel::Response>  response){    
+    void createCb(const std::shared_ptr<ros_ign_interfaces::srv::SpawnEntity::Request> request,
+                        std::shared_ptr<ros_ign_interfaces::srv::SpawnEntity::Response> response){    
         // Request message
         ignition::msgs::EntityFactory req;
         convert_ros_to_ign(request->entity_factory,req);
@@ -100,16 +99,17 @@ class IgnGazeboManager {
                 return;
             }
         }
-        //fail
+        // fail
         response->success =false;
         RCLCPP_ERROR(nh_->get_logger(), "[IgnGazeboManager] Failed to create\n %s", req.DebugString().c_str());
     }
 
-    void removeCb(const std::shared_ptr<ros_ign_interfaces::srv::RemoveModel::Request> request,
-                        std::shared_ptr<ros_ign_interfaces::srv::RemoveModel::Response>  response){  
+    void removeCb(const std::shared_ptr<ros_ign_interfaces::srv::DeleteEntity::Request> request,
+                        std::shared_ptr<ros_ign_interfaces::srv::DeleteEntity::Response>  response){  
         // Request message
         ignition::msgs::Entity req;
-        req.set_name(request->name);
+        req.set_name(request->entity.name);
+        //request->entity.type
         req.set_type(ignition::msgs::Entity::MODEL);
         ignition::msgs::Boolean rep;
         bool result;
@@ -122,20 +122,20 @@ class IgnGazeboManager {
                 return;
             }
         }
-        //fail
+        // fail
         response->success =false;
         RCLCPP_ERROR(nh_->get_logger(), "[IgnGazeboManager] Failed to remove\n %s", req.DebugString().c_str());
     }
 
-    void moveCb(const std::shared_ptr<ros_ign_interfaces::srv::MoveModel::Request> request,
-                        std::shared_ptr<ros_ign_interfaces::srv::MoveModel::Response>  response){  
+    void moveCb(const std::shared_ptr<ros_ign_interfaces::srv::SetEntityPose::Request> request,
+                        std::shared_ptr<ros_ign_interfaces::srv::SetEntityPose::Response>  response){  
         // Request message
         ignition::msgs::Pose req;
-        auto& t = request->tf.translation;
-        auto& r = request->tf.rotation;
+        auto& t = request->pose.position;
+        auto& r = request->pose.orientation;
         ignition::math::Pose3d pose{t.x, t.y, t.z, r.w, r.x, r.y, r.z};
         ignition::msgs::Set(&req, pose);
-        req.set_name(request->name);
+        req.set_name(request->entity.name);
         ignition::msgs::Boolean rep;
         bool result;
         unsigned int timeout = 5000;
@@ -147,7 +147,7 @@ class IgnGazeboManager {
                 return;
             }
         }
-        //fail
+        // fail
         response->success =false;
         RCLCPP_ERROR(nh_->get_logger(), "[IgnGazeboManager] Failed to move\n %s", req.DebugString().c_str());
     }
@@ -156,12 +156,11 @@ class IgnGazeboManager {
    private:
     rclcpp::Node::SharedPtr nh_;
     std::shared_ptr<ignition::transport::Node> ign_node_;
-
     //ros srv
     rclcpp::Service<ros_ign_interfaces::srv::ControlWorld>::SharedPtr ros_control_world_srv_;
-    rclcpp::Service<ros_ign_interfaces::srv::CreateModel>::SharedPtr ros_create_srv_;
-    rclcpp::Service<ros_ign_interfaces::srv::RemoveModel>::SharedPtr ros_remove_srv_;
-    rclcpp::Service<ros_ign_interfaces::srv::MoveModel>::SharedPtr ros_move_srv_;
+    rclcpp::Service<ros_ign_interfaces::srv::SpawnEntity>::SharedPtr ros_create_srv_;
+    rclcpp::Service<ros_ign_interfaces::srv::DeleteEntity>::SharedPtr ros_remove_srv_;
+    rclcpp::Service<ros_ign_interfaces::srv::SetEntityPose>::SharedPtr ros_move_srv_;
     // world name
     std::string ign_world_name_;
 };

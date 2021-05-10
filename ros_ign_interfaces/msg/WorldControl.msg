@@ -1,14 +1,8 @@
-#pause
-bool pause
-bool step
-uint32 multi_step 0
-
-#reset
-bool reset_time false
-bool reset_model false
-
-#seed
-uint32 seed
-
-#A simulation time in the future to run to and then pause.
-builtin_interfaces/Time run_to_sim_time
+bool pause                                  # paused state.      
+bool step                                   #
+uint32 multi_step  0                        # paused after stepping multi_step.
+ros_ign_interfaces/WorldReset reset         #
+uint32 seed                                 #
+builtin_interfaces/Time run_to_sim_time     # A simulation time in the future to run to and 
+                                            # then pause.
+                                            
