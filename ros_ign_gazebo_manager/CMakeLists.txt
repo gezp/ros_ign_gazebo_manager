@@ -16,6 +16,7 @@ find_package(ament_cmake_python REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
+find_package(ros_ign_bridge REQUIRED)
 find_package(ros_ign_interfaces REQUIRED)
 find_package(ignition-gazebo4 REQUIRED)
 set(IGN_GAZEBO_VER 4)
@@ -31,6 +32,7 @@ ament_target_dependencies(ign_gazebo_manager
     rclcpp 
     geometry_msgs
     ros_ign_interfaces
+    ros_ign_bridge
 )
 
 # Install executables
