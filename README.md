@@ -17,6 +17,7 @@ Environment
 
 * ROS2: foxy
 * Ignition Gazebo: Dome
+* ros_ign:ros2 [https://github.com/ignitionrobotics/ros_ign/tree/ros2](https://github.com/ignitionrobotics/ros_ign/tree/ros2)
 
 launch a empty world In Ignition Gazebo and `ign_gazebo_manager` node
 
