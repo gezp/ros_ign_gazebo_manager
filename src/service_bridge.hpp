@@ -10,11 +10,6 @@
  ******************************************************************************/
 #include <ignition/transport/Node.hh>
 #include <rclcpp/rclcpp.hpp>
-
-#include <ros_ign_interfaces/srv/control_world.hpp>
-#include <ros_ign_interfaces/srv/spawn_entity.hpp>
-#include <ros_ign_interfaces/srv/set_entity_pose.hpp>
-#include <ros_ign_interfaces/srv/delete_entity.hpp>
 #include <ros_ign_bridge/convert_decl.hpp>
 
 namespace ros_ign_bridge
