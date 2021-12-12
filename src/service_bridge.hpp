@@ -49,11 +49,11 @@ class IgnServiceBrigde{
                 convert_ign_to_ros(rep,*response);
             }else{
                 RCLCPP_ERROR(ros_node_->get_logger(), "Ignition Service %s call failed\n %s",
-                    ign_service_name_, req.DebugString().c_str());  
+                    ign_service_name_.c_str(), req.DebugString().c_str());  
             }
         }else{
             RCLCPP_ERROR(ros_node_->get_logger(), "Ignition Service %s call timed out\n %s",
-                ign_service_name_, req.DebugString().c_str());  
+                ign_service_name_.c_str(), req.DebugString().c_str());  
         } 
     } 
     private:

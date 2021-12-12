@@ -18,8 +18,8 @@ find_package(std_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(ros_ign_bridge REQUIRED)
 find_package(ros_ign_interfaces REQUIRED)
-find_package(ignition-gazebo4 REQUIRED)
-set(IGN_GAZEBO_VER 4)
+find_package(ignition-gazebo5 REQUIRED)
+set(IGN_GAZEBO_VER 5)
 
 # ros node
 add_executable(ign_gazebo_manager src/ign_gazebo_manager.cpp)
